@@ -24,13 +24,16 @@ The workflow is organised into sequential processing scripts, supported by reusa
 
 ## Repository structure
 
+```
 /  
- ├── Data/                     # Input data (intentionally empty)
- ├── Outputs/                  # Generated results and figures (intentionally empty)
- ├── Process/                  # Contains the main analysis scripts
- │   ├── functions/            # Reusable helper functions
- ├── renv/                     # renv infrastructure
- └── renv.lock                 # Reproducible package environment
+├── Data/                     # Input data (intentionally empty)
+├── Outputs/                  # Generated results and figures (intentionally empty)
+├── Process/                  # Contains the main analysis scripts
+│   ├── functions/            # Reusable helper functions
+├── renv/                     # renv infrastructure
+└── renv.lock                 # Reproducible package environment
+
+```
 
 ### Data and outputs
 
