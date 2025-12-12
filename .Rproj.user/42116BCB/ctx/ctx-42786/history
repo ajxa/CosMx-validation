@@ -1,0 +1,426 @@
+renv::status()
+renv::snapshot()
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(stringr)
+library(purrr)
+library(IMCfuncs)
+# I/O --------------------------------------------------------------------------
+io <- list(
+inputs = list(
+wang_etal = list(
+data_dir = "Data/public_single_cell/wang_et_al_2022/GSE174554_RAW",
+metadata_file = "Data/public_single_cell/wang_et_al_2022/metadata.xlsx"
+),
+nomura_etal = list(
+data_dir = "Data/public_single_cell/nomura_et_al_2025/GSE274546_RAW",
+metadata_file = "Data/public_single_cell/nomura_et_al_2025/metadata.xlsx"
+)
+),
+outputs = list(
+data = list(
+wang_et_al = "Data/public_single_cell/wang_et_al_2022",
+nomura_et_al = "Data/public_single_cell/nomura_et_al_2025"
+)
+),
+plots = list()
+)
+# I/O --------------------------------------------------------------------------
+io <- list(
+inputs = list(
+wang_etal = list(
+data_dir = "Data/public_single_cell/wang_et_al_2022/GSE174554_RAW",
+metadata_file = "Data/public_single_cell/wang_et_al_2022/metadata.xlsx",
+cleaned_metadata = "Data/public_single_cell/wang_et_al_2022/wang_et_al_metadata_filtered.xlsx",
+cleaned_sc = "Data/public_single_cell/wang_et_al_2022/wang_et_al_all_single_cells.rds",
+pseudo_bulks = "Data/public_single_cell/wang_et_al_2022/wang_et_al_pseudobulk_cpm.rds"
+),
+nomura_etal = list(
+data_dir = "Data/public_single_cell/nomura_et_al_2025/GSE274546_RAW",
+metadata_file = "Data/public_single_cell/nomura_et_al_2025/metadata.xlsx",
+cleaned_metadata = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_metadata_filtered.xlsx",
+cleaned_sc = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_all_single_cells.rds",
+pseudo_bulks = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_pseudobulk_cpm.rds"
+)
+),
+outputs = list(
+data = list(
+wang_et_al = "Data/public_single_cell/wang_et_al_2022",
+nomura_et_al = "Data/public_single_cell/nomura_et_al_2025"
+)
+),
+plots = list()
+)
+io$inputs$nomura_etal$cleaned_metadata
+file.exists(io$inputs$nomura_etal$cleaned_metadata)
+!file.exists(io$inputs$nomura_etal$cleaned_metadata)
+if(file.exists(io$inputs$nomura_etal$cleaned_metadata)){
+metadata <- openxlsx::read.xlsx(io$inputs$nomura_etal$cleaned_metadata)
+}
+View(metadata)
+# NOMURA ET AL. DATA -----------------------------------------------------------
+file_paths <-  list.files(io$inputs$nomura_etal$data_dir, full.names = TRUE)
+file_names <-  list.files(io$inputs$nomura_etal$data_dir)
+file_ids <- str_extract(file_names, "P\\d+T\\d")
+file_paths <- file_paths[file_ids %in% metadata_cleaned$id]
+file_paths <- file_paths[file_ids %in% metadata$id]
+file_ids <- file_ids[file_ids %in% metadata$id]
+rm(file_names)
+file_paths
+file_paths
+tools::file_path_sans_ext(file_paths)
+tools::file_path_sans_ext(file_paths[[1]])
+tools::file_path_as_absolute(file_paths[[1]])
+tools::file_path_sans_ext(file_paths[[1]])
+tools::file_ext(file_paths[[1]])
+str_remove(file_paths, ".gz$", "")
+str_remove(file_paths, ".gz$")
+str_remove(file_paths, "\\.gz$")
+tools::file_path_sans_ext(str_remove(file_paths, "\\.gz$"))
+basename(str_remove(file_paths, "\\.gz$"))
+io$inputs$nomura_etal$data_dir
+# I/O --------------------------------------------------------------------------
+io <- list(
+inputs = list(
+wang_etal = list(
+data_dir = "Data/public_single_cell/wang_et_al_2022/GSE174554_RAW",
+metadata_file = "Data/public_single_cell/wang_et_al_2022/metadata.xlsx",
+cleaned_metadata = "Data/public_single_cell/wang_et_al_2022/wang_et_al_metadata_filtered.xlsx",
+cleaned_sc = "Data/public_single_cell/wang_et_al_2022/wang_et_al_all_single_cells.rds",
+pseudo_bulks = "Data/public_single_cell/wang_et_al_2022/wang_et_al_pseudobulk_cpm.rds"
+),
+nomura_etal = list(
+data_dir = "Data/public_single_cell/nomura_et_al_2025/GSE274546_RAW",
+unzipped_raw = "Data/public_single_cell/nomura_et_al_2025/RAW",
+metadata_file = "Data/public_single_cell/nomura_et_al_2025/metadata.xlsx",
+cleaned_metadata = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_metadata_filtered.xlsx",
+cleaned_sc = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_all_single_cells.rds",
+pseudo_bulks = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_pseudobulk_cpm.rds"
+)
+),
+outputs = list(
+data = list(
+wang_et_al = "Data/public_single_cell/wang_et_al_2022",
+nomura_et_al = "Data/public_single_cell/nomura_et_al_2025"
+)
+),
+plots = list()
+)
+file.path(
+io$inputs$nomura_etal$unzipped_raw,
+basename(str_remove(file_paths, "\\.gz$"))
+)
+new_paths <- file.path(
+io$inputs$nomura_etal$unzipped_raw,
+basename(str_remove(file_paths, "\\.gz$"))
+)
+seq_along(file_paths)
+file_paths[1:3]
+new_paths[1:3]
+for(i in seq_along(file_paths)){
+if(!file.exists(new_paths[i])){
+R.utils::gunzip(
+filename = file_paths[i],
+destname = new_paths[i],
+remove = FALSE
+)
+}
+}
+rm(i)
+read_sparse_rds <- function(path) {
+mat_sparse <- Matrix::Matrix(data = readRDS(temp_rds), sparse = TRUE)
+# Defensive checks
+if (!inherits(mat_sparse, "dgCMatrix")) {
+stop("Object from ", path, " could not be coerced to a sparse dgCMatrix.")
+}
+if (is.null(rownames(mat_sparse))) {
+stop("Sparse matrix from ", path, " has no rownames (genes).")
+}
+return(mat_sparse)
+}
+data <- read_sparse_rds(new_paths[1])
+read_sparse_rds <- function(path) {
+mat_sparse <- Matrix::Matrix(data = readRDS(path), sparse = TRUE)
+# Defensive checks
+if (!inherits(mat_sparse, "dgCMatrix")) {
+stop("Object from ", path, " could not be coerced to a sparse dgCMatrix.")
+}
+if (is.null(rownames(mat_sparse))) {
+stop("Sparse matrix from ", path, " has no rownames (genes).")
+}
+return(mat_sparse)
+}
+data <- read_sparse_rds(new_paths[1])
+View(data)
+genes <-  rownames(data)
+length(genes)
+length(unique(genes))
+data <- read_sparse_rds(new_paths[2])
+data_1 <- read_sparse_rds(new_paths[2])
+rm(data)
+data_1 <- read_sparse_rds(new_paths[1])
+data_2 <- read_sparse_rds(new_paths[2])
+dim(data_1)
+dim(data_2)
+new_paths[1:5]
+file_ids[1:5]
+length(rownames(data_1)) != length(unique(rownames(data_1)))
+if(length(rownames(data_1)) != length(unique(rownames(data_1)))){
+stop("Duplicate gene names found in ", new_paths[1])
+}
+genes <- unique(rownames(data))
+genes <- unique(rownames(data_1))
+id   <-  file_ids[1]
+is.null(ref_genes)
+paste0(id, "_", seq_len(ncol(data_1)))
+paste0(file_ids[1], "_", seq_len(ncol(data_1)))
+colnames(data_1) <- paste0(file_ids[1], "_", seq_len(ncol(data_1)))
+colnames(data_2) <- paste0(file_ids[2], "_", seq_len(ncol(data_2)))
+rm(data_1, data_2)
+rm(genes, ids)
+rm(genes, id)
+mat_list <- lapply(new_paths[1:5], read_sparse_rds)
+mat_list <- lapply(new_paths[1:10], read_sparse_rds)
+mat_list <- lapply(new_paths[1:50], read_sparse_rds)
+rm(mat_list)
+tictoc::tic("Reading in sparse matrices")
+mat_list <- lapply(new_paths, read_sparse_rds)
+tictoc::toc()
+lapply(list, \(x){
+if(length(rownames(data_1)) != length(unique(rownames(data_1)))){
+return(FALSE)
+}else return(TRUE)
+}) |> unlist()
+foo = lapply(list, \(x){
+if(length(rownames(x)) != length(unique(rownames(x)))) return(FALSE) else return(TRUE)
+}) |> unlist()
+foo = lapply(mat_list, \(x){
+if(length(rownames(x)) != length(unique(rownames(x)))) return(FALSE) else return(TRUE)
+}) |> unlist()
+all(foo)
+rm(foo)
+lapply(mat_list, \(x){
+if(length(rownames(x)) != length(unique(rownames(x)))) return(FALSE) else return(TRUE)
+}) |> unlist() |> all()
+View(mat_list)
+foo = lapply(mat_list, \(x) return(unique(rownames(x))))
+bar = foo |> purrr::reduce(.f = intersect)
+unique(bar)
+bar = foo |> purrr::reduce(.f = identical)
+all(foo[[1]] == foo[[2]])
+identical(foo[[1]],foo[[2]])
+identical(foo[[1]], foo[[2]])
+View(foo)
+bar = reduce(foo, \(acc, nxt) return(acc == nxt))
+foo[[1]] == foo[[2]]
+all(foo[[1]] == foo[[2]])
+bar = reduce(foo, \(acc, nxt) all(acc == nxt))
+bar = reduce(foo, \(acc, nxt) if(all(acc == nxt)) return(unique(c(acc, nxt))) else stop("Gene names differ between matrices!"))
+rm(foo)
+unique_genes <- lapply(mat_list, \(x) return(unique(rownames(x))))
+bar <- unique_genes |>
+purrr::reduce(\(acc, nxt) if(all(acc == nxt)) return(unique(c(acc, nxt))) else stop("Gene names differ between matrices!")) |>
+# for (i in seq_along(file_paths)) {
+path <-  file_paths[i]
+bar <- purrr::reduce(unique_genes,\(acc, nxt) if(all(acc == nxt)) return(unique(c(acc, nxt))) else stop("Gene names differ between matrices!")) |>
+# for (i in seq_along(file_paths)) {
+path <-  file_paths[i]
+bar <- purrr::reduce(unique_genes,\(acc, nxt) if(all(acc == nxt)) return(unique(c(acc, nxt))) else stop("Gene names differ between matrices!"))
+all(bar == unique_genes[[1]])
+rm(bar, unique_genes)
+colnames(mat_list[[1]])
+colnames(mat_list[[2]])
+colnames(mat_list[[3]])
+mat_list <-  purrr::map2(mat_list, file_ids, ~{
+colnames(.x) <- paste0(.y, "_", seq_len(ncol(.x)))
+return(.x)
+})
+colnames(mat_list[[1]])
+colnames(mat_list[[2]])
+combined_matrix <-  do.call(Matrix::cbind2, mat_list)
+dim(combined_matrix)
+sapply(mat_list, ncol)
+sum(sapply(mat_list, ncol))
+rm(combined_matrix)
+View(mat_list)
+sapply(mat_list, ncol)
+colnames(mat_list[6])
+colnames(mat_list[[6]])
+sapply(mat_list, ncol)
+sum(6372,5071)
+combined_matrix <-  purrr::reduce(mat_list, Matrix::cbind2)
+tictoc::tic("Building full UMI matrix")
+combined_matrix <-  purrr::reduce(mat_list[1:52], Matrix::cbind2)
+tictoc::toc()
+dim(combined_matrix)
+sapply(mat_list, ncol) |> sum()
+sapply(mat_list[1:52], ncol) |> sum()
+sapply(mat_list[53:104], ncol) |> sum()
+object.size(combined_matrix)
+object.size(combined_matrix)
+sprintf("%.3f GB", as.numeric(object.size(combined_matrix)) / (1024^3))
+sapply(mat_list[53:104], ncol) |> sum()
+sapply(mat_list[1:52], ncol) |> sum()
+391504+ 250839
+sapply(mat_list, ncol) |> sum()
+sprintf("%.3f GB", as.numeric(object.size(combined_matrix)) / (1024^3))
+sapply(mat_list, ncol) |> sum()
+mat_list <- mat_list[-(1:52)]
+dim(combined_matrix)
+sprintf("%.3f GB", as.numeric(object.size(combined_matrix)) / (1024^3))
+tictoc::tic("Building second-half of the UMI matrix")
+combined_matrix_2 <-  purrr::reduce(mat_list, Matrix::cbind2)
+obj_size_gb <- function(x) {
+sprintf("%.3f GB", as.numeric(object.size(x)) / (1024^3))
+}
+obj_size_gb(combined_matrix)
+saveRDS(
+combined_matrix,
+file = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_1.rds"
+)
+rm(combined_matrix)
+gc()
+tictoc::tic("Building second-half of the UMI matrix")
+combined_matrix <-  purrr::reduce(mat_list[1:26], Matrix::cbind2)
+tictoc::toc()
+dim(combined_matrix)
+obj_size_gb(combined_matrix)
+saveRDS(
+combined_matrix,
+file = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_2.rds"
+)
+mat_list <- mat_list[-(1:26)]
+rm(combined_matrix)
+gc()
+tictoc::tic("Building third-half of the UMI matrix")
+combined_matrix <-  purrr::reduce(mat_list, Matrix::cbind2)
+tictoc::toc()
+dim(combined_matrix)
+obj_size_gb(combined_matrix)
+saveRDS(
+combined_matrix,
+file = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_3.rds"
+)
+rm(combined_matrix, mat_list, file_ids, file_paths, new_paths)
+gc()
+# Combine all three parts into a single matrix
+# Read in each part
+part1 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_1.rds")
+part2 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_2.rds")
+part3 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_3.rds")
+# Combine them
+combined_matrix <- Matrix::cbind2(part1, part2, part3)
+View(part1)
+View(part2)
+rm(part3)
+# Combine them
+combined_matrix <- Matrix::cbind2(part1, part2)
+dim(combined_matrix)
+rm(part1, part2)
+gc()
+part3 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_3.rds")
+combined_matrix <- Matrix::cbind2(combined_matrix, part3)
+dim(combined_matrix)
+dim(part3)
+ncol(part3)*0.5
+ncol(part3)
+nnz = length(combined_matrix@x) + length(part3@x)    # non-zeros in both
+ncols = ncol(combined_matrix) + ncol(part3)
+bytes_est = nnz * (8 + 4) + (ncols + 1) * 4   # x + i + p
+gb_est = bytes_est / 1024^3
+sprintf("Final matrix ≈ %.2f GB (ignoring overhead)", gb_est)
+saveRDS(
+combined_matrix,
+file = "Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_12.rds"
+)
+rm(bytes_est, gb_est, ncols, nnz)
+rm(read_sparse_rds)
+gc()
+library(Matrix)
+cbind_dgC_safe <- function(A, B) {
+if (!inherits(A, "dgCMatrix") || !inherits(B, "dgCMatrix")) {
+stop("Both A and B must be 'dgCMatrix' objects.")
+}
+if (nrow(A) != nrow(B)) {
+stop("A and B must have the same number of rows.")
+}
+# if B is smaller, swap so we always free the smaller one first
+nnzA = length(A@x)
+nnzB = length(B@x)
+if (nnzB < nnzA) {
+tmp = A
+A = B
+B = tmp
+rm(tmp)
+}
+n = nrow(A)
+k1 = ncol(A)
+k2 = ncol(B)
+nnz1 = length(A@x)
+nnz2 = length(B@x)
+# pre-allocate final slots
+i_out = integer(nnz1 + nnz2)
+x_out = numeric(nnz1 + nnz2)
+p_out = integer(k1 + k2 + 1)
+# copy A's slots
+i_out[1:nnz1] = A@i
+x_out[1:nnz1] = A@x
+p_out[1:(k1 + 1)] = A@p
+# save row + col names before freeing A
+row_names = rownames(A)
+col_names_A = colnames(A)
+if (is.null(col_names_A)) {
+col_names_A = paste0("A_", seq_len(k1))
+}
+rm(A)
+gc()
+# copy B's slots after offset
+offset = nnz1
+i_out[(nnz1 + 1):(nnz1 + nnz2)] = B@i
+x_out[(nnz1 + 1):(nnz1 + nnz2)] = B@x
+# p: first k1+1 entries already from A
+# remaining entries = B@p[-1] + offset
+p_out[(k1 + 2):(k1 + k2 + 1)] = B@p[-1] + offset
+col_names_B = colnames(B)
+if (is.null(col_names_B)) {
+col_names_B = paste0("B_", seq_len(k2))
+}
+rm(B)
+gc()
+Dim = c(as.integer(n), as.integer(k1 + k2))
+Dimnames = list(row_names, c(col_names_A, col_names_B))
+res = new("dgCMatrix",
+Dim = Dim,
+Dimnames = Dimnames,
+x = x_out,
+i = i_out,
+p = p_out)
+return(res)
+}
+combined <- cbind_dgC_safe(A = combined_matrix, B = part3)
+dim(combined_matrix)
+length(combined_matrix@x)
+dim(part3)
+length(part3@x)
+rm(cbind_dgC_safe)
+rm(combined_matrix, part3)
+gc()
+part12 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_12.rds")
+part3 <- readRDS("Data/public_single_cell/nomura_et_al_2025/nomura_et_al_umi_matrix_3.rds")
+# FINAL NOMURA ET AL. COMBINED MATRIX ------------------------------------------
+nnz_part12 = length(part12@x)
+nnz_part3  = length(part3@x)
+n_genes = nrow(part12)
+k1 = ncol(part12)
+k2 = ncol(part3)
+nnz_total = nnz_part12 + nnz_part3
+i_out = integer(nnz_total)
+x_out = numeric(nnz_total)
+p_out = integer(k1 + k2 + 1L)
+rm(part3, nnz_part12, nnz_part3)
+gc()
+x_out = numeric(nnz_total)
+rm(i_out, k1, k2, n_genesm nnz_total, p_out)
+rm(i_out, k1, k2, n_genes, nnz_total, p_out)
+gc()

@@ -1,0 +1,29 @@
+.Rproj
+.Rhistory
+.RData
+.Ruserdata
+
+# R CMD build / check
+*.tar.gz
+*.Rcheck/
+
+# Compiled code
+*.o
+*.so
+*.dll
+
+
+Data/*
+Outputs/*
+cache/
+tmp/
+
+
+*.log
+*.tmp
+*.swp
+*~
+
+.DS_Store
+Thumbs.db
+.vscode/
